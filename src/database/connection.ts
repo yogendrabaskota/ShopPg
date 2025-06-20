@@ -4,6 +4,7 @@ import { envConfig } from "../config/config"
 const dbURL:string | undefined  = envConfig.dbUrl
 
 const sequelize = new Sequelize(dbURL as string, {
+    models : [__dirname + '/models'],
     dialect: 'postgres'
 })
 try {
@@ -18,4 +19,9 @@ try {
     console.log("Database connection error:", error)
     
 }
+
+sequelize.sync({force : false,alter:false}).then(()=>{
+    console.log("synced !!")
+})
+
 export default sequelize
