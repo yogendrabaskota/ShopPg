@@ -15,7 +15,9 @@ class User extends Model<User> {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false, 
+        allowNull: false,
+        defaultValue: DataType.UUIDV4,
+        unique: true 
     })
     declare username: string;
 
