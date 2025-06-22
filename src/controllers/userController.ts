@@ -33,6 +33,15 @@ class UserController {
         email,
         password: bcrypt.hashSync(password, 10),
       });
+      sendMail({
+        to: email,
+        subject: "Welcome to Our Service",
+       // text: `Hello ${username},\n\nThank you for registering with us! We're excited to have you on board.\n\nBest regards,\n Our Team`,
+        html: `<p>Hello <strong>${username}</strong>,</p><p>Thank you for registering with us! We're excited to have you on board.</p><p>Best regards,<br> Our Team</p>`,
+      
+      })
+
+
       res.status(201).json({
         message: "User created successfully",
         data : user
@@ -113,8 +122,14 @@ class UserController {
       await sendMail({
         to: email,
         subject: "Password Reset OTP",
-        text: `Your OTP to reset password is \n ${otp}`,
+        //text: `Your OTP to reset password is \n ${otp}`,
+        html : `<p>Your OTP to reset password is \n <strong>${otp}</strong></p>`,
       })
+
+      user.otp = otp
+      user.otpGenerationTime = Date.now().toString()
+      await user.save()
+
       res.status(200).json({
         message: "OTP sent to your email",
       });

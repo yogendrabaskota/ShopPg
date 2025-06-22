@@ -38,6 +38,15 @@ class User extends Model {
         defaultValue: 'customer',
     })
     declare role: string;
+    
+    @Column({
+        type: DataType.STRING
+    })
+    declare otp: string;
+    @Column({
+        type: DataType.STRING
+    })
+    declare otpGenerationTime: string;
 }
 
 export default User

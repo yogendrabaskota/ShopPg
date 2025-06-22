@@ -12,10 +12,11 @@ export const sendMail = async(data : IData)=>{
 
     })
     const mailOptions = {
-        from: "Yogendra Baskota<yogendrabaskota18@gmail.com>",
+        from: "Yogendra Baskota<yogendrabaskotaa18@gmail.com>",
         to: data.to,
         subject: data.subject,
-        text: data.text
+        html: data.html
+        //text: data.text
     }
     try {
         await transporter.sendMail(mailOptions)
@@ -28,5 +29,6 @@ export const sendMail = async(data : IData)=>{
 interface IData {
     to : string,
     subject: string,
-    text: string
+    //text: string
+    html : string
 }
