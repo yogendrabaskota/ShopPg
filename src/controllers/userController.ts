@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import generateToken from "../services/generateToken";
 import { generateOtp } from "../services/generateOtp";
 import { sendMail } from "../services/sendMail";
+import findData from "../services/findData";
+import sendResponse from "../services/sendResponse";
 
 
 class UserController {
@@ -12,9 +14,7 @@ class UserController {
       const { username, email, password } = req.body;
 
       if (!username || !email || !password) {
-        res.status(400).json({
-          message: "All fields are required",
-        });
+        sendResponse(res,400,"All fields are required")
         return;
       }
       const [data] = await User.findAll({
@@ -23,9 +23,7 @@ class UserController {
         },
       });
       if (data) {
-        res.status(400).json({
-          message: "User already exists",
-        });
+        sendResponse(res,400,"User already exists")
         return;
       }
       const user = await User.create({
@@ -56,9 +54,7 @@ class UserController {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        res.status(400).json({
-          message: "All fields are required",
-        });
+        sendResponse(res,400,"All fields are required")
         return;
       }
 
@@ -69,17 +65,13 @@ class UserController {
       });
 
       if (!user) {
-        res.status(404).json({
-          message: "User not found",
-        });
+        sendResponse(res,404,"User not found")
         return;
       }
 
       const isPasswordValid = bcrypt.compareSync(password, user.password);
       if (!isPasswordValid) {
-        res.status(401).json({
-          message: "Invalid password",
-        });
+        sendResponse(res,401,"invalid password")
         return;
       }
       const token = generateToken(user.id)
@@ -100,9 +92,7 @@ class UserController {
       const { email } = req.body;
 
       if (!email) {
-        res.status(400).json({
-          message: "Email is required",
-        });
+        sendResponse(res,400,"Email is required")
         return;
       }
 
@@ -111,11 +101,10 @@ class UserController {
           email: email,
         },
       });
+      //const user = findData(User,email)
 
       if (!user) {
-        res.status(404).json({
-          message: "User not found",
-        });
+        sendResponse(res,404,"user not found")
         return;
       }
       const otp = generateOtp()
@@ -130,13 +119,27 @@ class UserController {
       user.otpGenerationTime = Date.now().toString()
       await user.save()
 
-      res.status(200).json({
-        message: "OTP sent to your email",
-      });
+    sendResponse(res,200,"otp send to your email")
     } catch (error) {
       console.log(error);
     }
   
   }
+
+  static async verifyOtp(req:Request,res:Response):Promise<void>{
+    const {otp,email} = req.body
+    if(!otp || !email){
+      sendResponse(res,400,"Please provide email and otp")
+      return
+    }
+    const user = findData(User,email)
+    
+    if(!user){
+      sendResponse(res,400,"No user found")
+    }
+
+  }
+
+
 }
 export default UserController;
