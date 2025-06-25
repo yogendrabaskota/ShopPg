@@ -1,12 +1,13 @@
 
-const findData = async(model : any, query : string)=>{
 
-    const [result] = await model.findAll({
+
+const findData = async (model:any,query:string)=>{
+   const [result] =  await model.findAll({
         where : {
-            query
+            email : query
         }
     })
     return result
-
 }
+
 export default findData

@@ -31,7 +31,7 @@ class User extends Model {
         type: DataType.STRING,
         allowNull: false
     })
-    email!: string;
+    declare email: string;
 
     @Column({
         type: DataType.ENUM('admin', 'customer'),

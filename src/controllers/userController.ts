@@ -6,6 +6,7 @@ import { generateOtp } from "../services/generateOtp";
 import { sendMail } from "../services/sendMail";
 import findData from "../services/findData";
 import sendResponse from "../services/sendResponse";
+import checkOtpExpiration from "../services/checkOtpExpiration";
 
 
 class UserController {
@@ -112,10 +113,10 @@ class UserController {
         to: email,
         subject: "Password Reset OTP",
         //text: `Your OTP to reset password is \n ${otp}`,
-        html : `<p>Your OTP to reset password is \n <strong>${otp}</strong></p>`,
+        html : `<p>Your OTP to reset password is \n <strong>${otp}</strong></p>\n please note that opt will expire after 2 min from now`,
       })
 
-      user.otp = otp
+      user.otp = otp.toString()
       user.otpGenerationTime = Date.now().toString()
       await user.save()
 
@@ -132,13 +133,76 @@ class UserController {
       sendResponse(res,400,"Please provide email and otp")
       return
     }
-    const user = findData(User,email)
+    const user = await findData(User,email)
     
     if(!user){
       sendResponse(res,400,"No user found")
+      return
+    }
+    const [data] = await User.findAll({
+      where : {
+        email,
+        otp : String(otp)
+      
+      }
+    })
+   // console.log(data)
+    if(!data){
+      sendResponse(res,404,"Invalid otp")
+      return
     }
 
+    const otpGeneratedTime = data.otpGenerationTime
+    checkOtpExpiration(res,otpGeneratedTime,120000)
+    // if(checkOtpExpiration(res,otpGeneratedTime,120000)){
+    //   sendResponse(res,200,"Valid otp")
+    // }else{
+    //   sendResponse(res,403,"Your Otp is already expired")
+
+    // }
+    //sendResponse(res,200,"valid OTP")
+
+
   }
+//   static async verifyOtp(req: Request, res: Response): Promise<void> {
+//   try {
+//     const { otp, email } = req.body;
+
+//     if (!otp || !email) {
+//       sendResponse(res, 400, "Please provide email and OTP");
+//       return;
+//     }
+
+//     const user = await findData(User, email); // your custom function?
+
+//     if (!user) {
+//       sendResponse(res, 400, "No user found");
+//       return;
+//     }
+
+//     const data = await User.findOne({
+//       where: {
+//         email,
+//         otp : String(otp)
+//       }
+//     });
+
+//     console.log("OTP match result:", data);
+
+//     if (!data) {
+//       sendResponse(res, 404, "Invalid OTP");
+//       return;
+//     }
+
+//     const otpGeneratedTime = data.otpGenerationTime;
+
+//     checkOtpExpiration(res, otpGeneratedTime, 120000); // 2 minutes
+//   } catch (err) {
+//     console.error("Error verifying OTP:", err);
+//     sendResponse(res, 500, "Server error while verifying OTP");
+//   }
+// }
+
 
 
 }
