@@ -78,7 +78,26 @@ class CategoryController{
             }
         })
         sendResponse(res,200,"Category deleted successfully")
+        }
     }
+    async updateCategory(req:Request,res:Response):Promise<void>{
+        const {id} = req.params
+        const {categoryName} = req.body
+        if(!id || !categoryName){
+            sendResponse(res,400,"Please provide category id and name")
+            return
+        }
+        const category = await Category.findByPk(id)
+        if(!category){
+            sendResponse(res,404,"Category not found")
+            return
+        }
+        await Category.update({categoryName},{
+            where : {
+                id: id
+            }
+        })
+        sendResponse(res,200,"Category updated successfully")
     }
      
 }
