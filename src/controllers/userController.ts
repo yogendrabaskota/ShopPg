@@ -11,7 +11,7 @@ import checkOtpExpiration from "../services/checkOtpExpiration";
 class UserController {
   static async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password } = req.body;
+      const { username, email, password,role } = req.body;
 
       if (!username || !email || !password) {
         sendResponse(res, 400, "All fields are required");
@@ -30,6 +30,7 @@ class UserController {
         username,
         email,
         password: bcrypt.hashSync(password, 10),
+        role
       });
       sendMail({
         to: email,

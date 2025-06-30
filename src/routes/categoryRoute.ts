@@ -1,13 +1,18 @@
 import express, { Router } from 'express'
 import categoryController from '../controllers/categoryController'
-import userMiddleware from '../middleware/userMiddleware'
+import userMiddleware, { Roles } from '../middleware/userMiddleware'
 
 const router:Router = express.Router()
 
-router.route("/").post(userMiddleware.isUserLogin, categoryController.addCategory)
-                 .get(categoryController.getAllCategories)
-router.route("/:id").delete(userMiddleware.isUserLogin,categoryController.deleteCategory)
-                    .patch(userMiddleware.isUserLogin,categoryController.updateCategory)
+router.route("/")
+  .post(
+    userMiddleware.isUserLogin, 
+    userMiddleware.accessTo(Roles.Admin),  
+    categoryController.addCategory
+  )
+    .get(categoryController.getAllCategories)
+router.route("/:id").delete(userMiddleware.isUserLogin,userMiddleware.accessTo(Roles.Admin),categoryController.deleteCategory)
+                    .patch(userMiddleware.isUserLogin,userMiddleware.accessTo(Roles.Admin),categoryController.updateCategory)
  
 
 
