@@ -4,7 +4,7 @@ import Product from "../database/models/productModel";
 import Category from "../database/models/categoryModel";
 
 interface ProductRequest extends Request{
-    file : {
+    file? : {
         filename : string
     }
 }
@@ -44,6 +44,8 @@ class ProductController{
         }
         sendResponse(res,200,"Products fetched successfully",products)
     }
+
+
     async getSingleProduct(req:Request,res:Response):Promise<void>{
         const {id} = req.params
         if(!id){
@@ -66,7 +68,63 @@ class ProductController{
         }
         sendResponse(res,200,"Product fetched successfully",product)
     }
+
+    async deleteProduct(req:Request,res:Response):Promise<void>{
+        const {id} = req.params
+        if(!id){
+            sendResponse(res,400,"Please provide product id")
+            return
+        }
+        const product = await Product.findAll({
+            where : {
+                id : id
+            }
+        })
+        if(product.length == 0){
+            sendResponse(res,404,"Product not found")
+            return
+        }
+        await Product.destroy({
+            where : {
+                id : id
+            }
+        })
+        sendResponse(res,200,"Product deleted successfully")
+    }   
     
+    async updateProduct(req:ProductRequest,res:Response):Promise<void>{
+        const {id} = req.params
+        const {productName,productDescription,productPrice,discount,productTotalStock,categoryId} = req.body
+        const filename = req.file? req.file.filename : "dummyimage"
+
+        if(!id || !productName || !productDescription || !productPrice || !productTotalStock){
+            sendResponse(res,400,"Please provide product id, productName, productDescription, productPrice, discount, productTotalStock")
+            return
+        }
+        const product = await Product.findAll({
+            where : {
+                id : id
+            }
+        })
+        if(product.length == 0){
+            sendResponse(res,404,"Product not found")
+            return
+        }
+        await Product.update({
+            productName,
+            productDescription,
+            productPrice,
+            productTotalStock,
+            discount : discount || 0,
+            categoryId,
+            productImageUrl : filename
+        },{
+            where : {
+                id : id
+            }
+        })
+        sendResponse(res,200,"Product updated successfully")
+    }
 
 
 
