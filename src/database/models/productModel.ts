@@ -36,6 +36,11 @@ class Product extends Model {
     @Column({
         type : DataType.INTEGER
     })
+    declare productTotalStock : number
+
+    @Column({
+        type : DataType.INTEGER
+    })
     declare discount : number
 
     @Column({

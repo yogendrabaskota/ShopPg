@@ -2,7 +2,6 @@ import { Sequelize } from "sequelize-typescript"
 import { envConfig } from "../config/config"
 import Product from "./models/productModel"
 import Category from "./models/categoryModel"
-import User from "./models/userModels"
 
 const dbURL:string | undefined  = envConfig.dbUrl
 
